@@ -112,16 +112,17 @@ def planner_node(state: AgentState):
     INSTRUCTIONS:
     Write a highly specific, step-by-step technical blueprint for the Coder agent to implement.
     
-    CRITICAL CONSTRAINTS:
-    1. AVOID TUNNEL VISION: Integration tests often have "Setup" steps (e.g., a POST request to create data before testing a GET request). You MUST analyze and fix EVERY single `client` call in the test function, line-by-line.
-    2. PAYLOAD MAPPING: If the test setup uses old fields (e.g., 'username', 'email'), you MUST instruct the coder to replace them with the new required fields from the schema (e.g., 'first_name', 'last_name', 'contact_email', 'role').
-    3. HEADERS: Explicitly instruct the coder to add required headers to ALL `client` requests.
-    4. ERROR LOGS: If there are previous errors provided above, your new strategy MUST explicitly address the exact line and error mentioned in the logs.
+    CRITICAL CONSTRAINTS & THE INFALLIBILITY RULE:
+    1. THE API IS INFALLIBLE: You MUST assume the OpenAPI schema and the API's current behavior are 100% correct and intentional. 
+    2. DEFY REST CONVENTIONS IF NECESSARY: If the API returns a 200 OK for an error state (e.g., User Not Found), DO NOT assume the API is broken. The API developers did this on purpose. You MUST instruct the coder to rewrite the test to assert `status_code == 200` and check the JSON payload for the custom error message.
+    3. AVOID TUNNEL VISION: Integration tests often have "Setup" steps. You MUST analyze and fix EVERY single `client` call in the test function, line-by-line.
+    4. PAYLOAD MAPPING: If the test setup uses old fields (e.g., 'username'), you MUST instruct the coder to replace them with the new required fields from the schema (e.g., 'first_name', 'last_name', 'role').
+    5. HEADERS: Explicitly instruct the coder to add required headers to ALL `client` requests.
     
     FORMAT YOUR RESPONSE EXACTLY LIKE THIS:
-    **Diagnosis:** [Explain why the test failed, including any failures in the setup steps]
+    **Diagnosis:** [Explain why the test failed based strictly on how the test violates the NEW schema]
     **Setup Fixes (POST/PUT/etc):** [Exact instructions for fixing database seeding steps]
-    **Target Fixes (Main Assertion):** [Exact instructions for fixing the main API call and assertions]
+    **Target Fixes (Main Assertion):** [Exact instructions for fixing the main API call and assertions. If the status code changed, explicitly state the new expected status code.]
     **Actionable Steps for Coder:** [Numbered list of exact, chronological changes to make to the script]
     """
     

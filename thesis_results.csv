@@ -5,3 +5,4 @@ run_id,timestamp,architecture,change_category,change_name,llm_calls,success,tota
 20260414_195526_MAS_pagination_and_envelope,2026-04-14T19:56:39.009094,multi_agent,medium,pagination_and_envelope,6,False,15348, short test summary info =========================== FAILED test_main.py::test_get_users - AssertionError: assert False ============================== 1 failed in 0.55s ============================== 
 20260414_195639_MAS_error_paradigm_shift,2026-04-14T19:57:56.499405,multi_agent,hard,error_paradigm_shift,6,False,16292,== short test summary info =========================== FAILED test_main.py::test_get_user_not_found - assert 200 == 404 ============================== 1 failed in 0.52s ============================== 
 20260414_195756_MAS_semantic_split_and_enum,2026-04-14T19:58:17.465421,multi_agent,hard,semantic_split_and_enum,2,True,4465,
+20260414_201819_MAS_error_paradigm_shift,2026-04-14T20:19:46.964839,multi_agent,hard,error_paradigm_shift,6,True,16420,
