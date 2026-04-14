@@ -3,76 +3,119 @@ import json
 import csv
 import os
 import httpx
+import shutil
 from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
 
 # --- CONFIGURATION ---
-# Load environment variables from .env file
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-MAX_ATTEMPTS = 3
+MAX_ATTEMPTS = 4
 RESULTS_FILE = "thesis_results.csv"
+LOGS_DIR = "experiment_logs"
 
-def init_csv():
-    """Creates the CSV and writes headers if it doesn't exist."""
+# --- THE EXPERIMENT MATRIX ---
+# Maps specific tests to their highest cognitive complexity hurdle
+EXPERIMENT_MATRIX = [
+    {
+        "test_function": "test_get_users",
+        "change_category": "medium",
+        "change_name": "pagination_and_envelope"
+    },
+    {
+        "test_function": "test_get_user_not_found",
+        "change_category": "hard",
+        "change_name": "error_paradigm_shift"
+    },
+    {
+        "test_function": "test_create_user",
+        "change_category": "hard",
+        "change_name": "semantic_split_and_enum"
+    }
+]
+
+def init_logging():
+    """Creates the CSV and the artifact directory if they don't exist."""
+    os.makedirs(LOGS_DIR, exist_ok=True)
     try:
         with open(RESULTS_FILE, 'x', newline='') as f:
             writer = csv.writer(f)
             writer.writerow([
-                "timestamp", "architecture", "change_category", 
-                "change_name", "iteration_count", "success", 
-                "total_tokens", "failure_reason"
+                "run_id", "timestamp", "architecture", "change_category", 
+                "change_name", "llm_calls", "success", 
+                "total_tokens", "final_failure_reason"
             ])
     except FileExistsError:
-        pass # File already exists
+        pass
 
-def log_result(architecture, category, name, iterations, success, tokens, reason=""):
+def log_result_csv(run_id, architecture, category, name, iterations, success, tokens, reason=""):
     """Appends a single experiment run to the CSV."""
-    with open(RESULTS_FILE, 'a', newline='') as f:
+    with open(RESULTS_FILE, 'a', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow([
-            datetime.now().isoformat(), architecture, category, 
+            run_id, datetime.now().isoformat(), architecture, category, 
             name, iterations, success, tokens, reason
         ])
 
-def run_tests():
-    """Runs pytest and returns (success_boolean, combined_logs)."""
-    result = subprocess.run(["pytest", "test_main.py"], capture_output=True, text=True)
+def save_artifact(run_id, attempt, code, logs):
+    """Saves the intermediate code and logs for qualitative analysis."""
+    code_path = os.path.join(LOGS_DIR, f"{run_id}_attempt_{attempt}_code.py")
+    with open(code_path, "w", encoding='utf-8') as f:
+        f.write(code)
+        
+    log_path = os.path.join(LOGS_DIR, f"{run_id}_attempt_{attempt}_pytest.log")
+    with open(log_path, "w", encoding='utf-8') as f:
+        f.write(logs)
+
+def run_tests(test_function=None):
+    """Runs pytest. If a test_function is provided, it isolates that specific test."""
+    cmd = ["pytest", "test_main.py", "-v"]
+    if test_function:
+        cmd = ["pytest", f"test_main.py::{test_function}", "-v"]
+        
+    result = subprocess.run(cmd, capture_output=True, text=True)
     return result.returncode == 0, result.stdout + result.stderr
 
 def get_openapi_schema():
     """Fetches the V2 OpenAPI schema from the running FastAPI instance."""
     try:
-        # Ensure your V2 API is running on port 8000
         response = httpx.get("http://127.0.0.1:8000/openapi.json")
         return json.dumps(response.json(), indent=2)
     except Exception as e:
         return f"Error fetching schema: {e}"
 
-def baseline_loop(change_category, change_name):
-    print(f"Starting baseline experiment for: {change_name} ({change_category})")
+def baseline_loop(test_function, change_category, change_name):
+    print(f"\n==================================================")
+    print(f"🚀 Starting isolated experiment: {change_name} [{change_category.upper()}]")
+    print(f"🎯 Target Test: {test_function}")
+    print(f"==================================================")
+    
     total_tokens_used = 0
+    run_id = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{change_name}"
     
     for attempt in range(1, MAX_ATTEMPTS + 1):
         print(f"\n--- Attempt {attempt} ---")
-        success, logs = run_tests()
         
-        if success:
-            print("✅ Tests passed! The agent successfully healed the code.")
-            log_result("single_agent", change_category, change_name, attempt, True, total_tokens_used)
-            return
-            
-        print("❌ Tests failed. Asking LLM for a fix...")
+        # Isolate the execution to only the targeted test function
+        success, logs = run_tests(test_function) 
         
-        # Read the current broken test code
-        with open("test_main.py", "r") as f:
+        with open("test_main.py", "r", encoding='utf-8') as f:
             current_code = f.read()
             
+        save_artifact(run_id, attempt, current_code, logs)
+        
+        if success:
+            print(f"✅ Isolated test '{test_function}' passed!")
+            llm_calls = attempt - 1
+            log_result_csv(run_id, "single_agent", change_category, change_name, llm_calls, True, total_tokens_used)
+            return
+            
+        print(f"❌ Test failed. Asking LLM for a fix...")
+        
         schema = get_openapi_schema()
         
-        # Construct the prompt
         prompt = f"""
         You are an expert QA engineer. The integration tests are failing because the API has been updated.
         
@@ -86,7 +129,7 @@ def baseline_loop(change_category, change_name):
         {current_code}
         ```
         
-        Here are the pytest error logs:
+        Here are the pytest error logs for the specific failing test:
         ```text
         {logs}
         ```
@@ -94,39 +137,42 @@ def baseline_loop(change_category, change_name):
         Rewrite the test code to make it pass. Return ONLY the fully updated python code inside ```python ``` blocks. Do not include any other text.
         """
         
-        # Make the live OpenAI call
         response = client.chat.completions.create(
-            model="gpt-4o-mini", # Using 4o-mini for rapid, cost-effective baseline testing
+            model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2
         )
         
-        # Extract token usage and add to running total
         tokens = response.usage.total_tokens
         total_tokens_used += tokens
         print(f"Token Usage this attempt: {tokens}")
         
-        # Extract code and clean markdown formatting
         new_code = response.choices[0].message.content
         new_code = new_code.replace("```python\n", "").replace("```python", "").replace("```", "").strip()
         
-        # Overwrite the test file with the LLM's proposed fix
-        with open("test_main.py", "w") as f:
+        with open("test_main.py", "w", encoding='utf-8') as f:
             f.write(new_code)
             
-    # If the loop completes without returning, the agent failed
     if not success:
-        print("🚨 Baseline agent failed to heal the tests after max attempts.")
-        # Grab the last 200 characters of the error log to record the final failure state
-        final_error = logs[-200:].replace("\n", " ") 
-        log_result("single_agent", change_category, change_name, MAX_ATTEMPTS, False, total_tokens_used, final_error)
+        print(f"🚨 Baseline failed to heal '{test_function}' after {MAX_ATTEMPTS} attempts.")
+        final_error_snippet = logs[-200:].replace("\n", " ") 
+        log_result_csv(run_id, "single_agent", change_category, change_name, MAX_ATTEMPTS, False, total_tokens_used, final_error_snippet)
 
 if __name__ == "__main__":
-    init_csv()
+    init_logging()
     
-    # Execution Example:
-    # 1. Start your main_v2.py in a separate terminal (`uvicorn main_v2:app --reload`)
-    # 2. Ensure test_main.py is in a failing state.
-    # 3. Run this script.
-    
-    baseline_loop(change_category="easy", change_name="route_prefixing")
+    for experiment in EXPERIMENT_MATRIX:
+        print(f"\n[SYSTEM] Resetting test_main.py to V1 state...")
+        
+        # OS-agnostic file reset to guarantee a clean slate for each test
+        try:
+            shutil.copy("test_main_v1_backup.py", "test_main.py")
+        except FileNotFoundError:
+            print("🚨 ERROR: 'test_main_v1_backup.py' not found! Please create this backup file before running.")
+            exit(1)
+            
+        baseline_loop(
+            test_function=experiment["test_function"],
+            change_category=experiment["change_category"],
+            change_name=experiment["change_name"]
+        )

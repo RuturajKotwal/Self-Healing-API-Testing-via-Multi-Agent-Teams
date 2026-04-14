@@ -1,2 +1,4 @@
-timestamp,architecture,change_category,change_name,iteration_count,success,total_tokens,failure_reason
-2026-04-13T18:18:08.810300,single_agent,easy,route_prefixing,3,True,5078,
+run_id,timestamp,architecture,change_category,change_name,llm_calls,success,total_tokens,final_failure_reason
+20260414_131712_pagination_and_envelope,2026-04-14T13:19:08.385838,single_agent,medium,pagination_and_envelope,2,True,5930,
+20260414_131908_error_paradigm_shift,2026-04-14T13:20:26.450643,single_agent,hard,error_paradigm_shift,2,True,5911,
+20260414_132026_semantic_split_and_enum,2026-04-14T13:20:49.977122,single_agent,hard,semantic_split_and_enum,1,True,2846,

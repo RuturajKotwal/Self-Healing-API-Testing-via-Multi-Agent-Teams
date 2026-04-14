@@ -55,5 +55,5 @@ def test_get_user_by_id():
 
 def test_get_user_not_found():
     response = client.get("/api/v2/users/999", headers={"x-api-version": "1.0"})
-    assert response.status_code == 404
-    assert response.json() == {"detail": "User not found"}
+    assert response.status_code == 422
+    assert "detail" in response.json()
