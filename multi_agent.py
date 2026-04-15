@@ -118,6 +118,7 @@ def planner_node(state: AgentState):
     3. AVOID TUNNEL VISION: Integration tests often have "Setup" steps. You MUST analyze and fix EVERY single `client` call in the test function, line-by-line.
     4. PAYLOAD MAPPING: If the test setup uses old fields (e.g., 'username'), you MUST instruct the coder to replace them with the new required fields from the schema (e.g., 'first_name', 'last_name', 'role').
     5. HEADERS: Explicitly instruct the coder to add required headers to ALL `client` requests.
+    6. SEMANTIC PRESERVATION: You MUST preserve the original business intent of the test. Look at the test name (e.g., 'not_found'). If the API requires a UUID, DO NOT just assert a 422 validation error for a bad integer like '999'. You must instruct the coder to use a valid, fake UUID (e.g., '123e4567-e89b-12d3-a456-426614174000') so the test successfully reaches the actual 'Not Found' business logic (which may be a 200 OK with a custom error payload).
     
     FORMAT YOUR RESPONSE EXACTLY LIKE THIS:
     **Diagnosis:** [Explain why the test failed based strictly on how the test violates the NEW schema]

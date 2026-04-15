@@ -1,0 +1,31 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\admin\OneDrive\Desktop\git\ai-agent-thesis\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\admin\OneDrive\Desktop\git\ai-agent-thesis
+plugins: anyio-4.13.0
+collecting ... collected 1 item
+
+test_main.py::test_get_user_not_found FAILED                             [100%]
+
+================================== FAILURES ===================================
+___________________________ test_get_user_not_found ___________________________
+
+    def test_get_user_not_found():
+        response = client.get("/users/999")
+        assert response.status_code == 404
+>       assert response.json() == {"detail": "User not found"}
+E       AssertionError: assert {'detail': 'Not Found'} == {'detail': 'User not found'}
+E         
+E         Differing items:
+E         {'detail': 'Not Found'} != {'detail': 'User not found'}
+E         
+E         Full diff:
+E           {
+E         -     'detail': 'User not found',...
+E         
+E         ...Full output truncated (4 lines hidden), use '-vv' to show
+
+test_main.py:53: AssertionError
+=========================== short test summary info ===========================
+FAILED test_main.py::test_get_user_not_found - AssertionError: assert {'detai...
+============================== 1 failed in 0.76s ==============================
