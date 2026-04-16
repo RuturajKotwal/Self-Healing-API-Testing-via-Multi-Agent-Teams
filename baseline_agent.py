@@ -161,18 +161,22 @@ def baseline_loop(test_function, change_category, change_name):
 if __name__ == "__main__":
     init_logging()
     
-    for experiment in EXPERIMENT_MATRIX:
-        print(f"\n[SYSTEM] Resetting test_main.py to V1 state...")
+    # Run the experiment 5 times
+    for run_number in range(1, 6):
+        print(f"\n{'='*60}")
+        print(f"🌟 BASELINE EXPERIMENT - BATCH {run_number} OF 5 🌟")
+        print(f"{'='*60}")
         
-        # OS-agnostic file reset to guarantee a clean slate for each test
-        try:
-            shutil.copy("test_main_v1_backup.py", "test_main.py")
-        except FileNotFoundError:
-            print("🚨 ERROR: 'test_main_v1_backup.py' not found! Please create this backup file before running.")
-            exit(1)
-            
-        baseline_loop(
-            test_function=experiment["test_function"],
-            change_category=experiment["change_category"],
-            change_name=experiment["change_name"]
-        )
+        for experiment in EXPERIMENT_MATRIX:
+            print(f"\n[SYSTEM] Resetting test_main.py to V1 state...")
+            try:
+                shutil.copy("test_main_v1_backup.py", "test_main.py")
+            except FileNotFoundError:
+                print("🚨 ERROR: 'test_main_v1_backup.py' not found!")
+                exit(1)
+                
+            baseline_loop(
+                test_function=experiment["test_function"],
+                change_category=experiment["change_category"],
+                change_name=experiment["change_name"]
+            )

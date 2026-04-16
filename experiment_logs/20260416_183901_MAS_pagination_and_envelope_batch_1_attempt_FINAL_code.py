@@ -1,0 +1,80 @@
+import pytest
+from fastapi.testclient import TestClient
+from main_v2 import app, fake_db
+
+client = TestClient(app)
+
+# Reset the in-memory database before every test to ensure isolation
+@pytest.fixture(autouse=True)
+def reset_db():
+    fake_db.clear()
+    import main_v2
+    main_v2.current_id = 1
+    yield
+
+def test_create_user():
+    payload = {
+        "first_name": "Test",
+        "last_name": "Agent",
+        "contact_email": "agent@test.com",
+        "role": "admin"
+    }
+    response = client.post("/api/v2/users", json=payload, headers={"x-api-version": "2"})
+    
+    assert response.status_code == 201
+    data = response.json()
+    assert data["first_name"] == "Test"
+    assert data["last_name"] == "Agent"
+    assert data["contact_email"] == "agent@test.com"
+    assert data["role"] == "admin"
+    assert "id" in data
+
+def test_get_users():
+    # Setup: Seed the database with one user
+    response = client.post("/api/v2/users", json={
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "contact_email": "alice@test.com",
+        "role": "customer"
+    }, headers={"x-api-version": "2"})
+    
+    assert response.status_code == 201  # Ensure user creation was successful
+
+    response = client.get("/api/v2/users?limit=1&offset=0", headers={"x-api-version": "2"})
+    assert response.status_code == 200
+    
+    data = response.json()
+    assert "data" in data  # Check if 'data' field exists
+    assert isinstance(data["data"], list)  # Check if 'data' is a list
+    assert len(data["data"]) == 1  # Check that the length of the list is 1
+    assert data["data"][0]["first_name"] == "Alice"
+    assert data["data"][0]["last_name"] == "Smith"
+    assert data["data"][0]["contact_email"] == "alice@test.com"
+    assert data["data"][0]["role"] == "customer"
+    assert "id" in data["data"][0]  # Check if 'id' exists
+
+def test_get_user_by_id():
+    # Setup: Create a user and grab their generated ID
+    create_resp = client.post("/api/v2/users", json={
+        "first_name": "Bob",
+        "last_name": "Builder",
+        "contact_email": "bob@test.com",
+        "role": "worker"
+    }, headers={"x-api-version": "2"})
+    user_id = create_resp.json()["id"]
+
+    # Test the fetch
+    response = client.get(f"/api/v2/users/{user_id}", headers={"x-api-version": "2"})
+    assert response.status_code == 200
+    
+    data = response.json()
+    assert data["first_name"] == "Bob"
+    assert data["last_name"] == "Builder"
+    assert data["contact_email"] == "bob@test.com"
+    assert data["role"] == "worker"
+    assert data["id"] == user_id
+
+def test_get_user_not_found():
+    response = client.get("/api/v2/users/123e4567-e89b-12d3-a456-426614174000", headers={"x-api-version": "2"})
+    assert response.status_code == 404  # Assuming the correct status code for not found is 404
+    assert response.json() == {"detail": "User not found"}

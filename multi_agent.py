@@ -245,69 +245,57 @@ def get_openapi_schema():
         return f"Error fetching schema: {e}"
 
 if __name__ == "__main__":
-    # Initialize the same CSV used by the baseline
     init_logging() 
-    
     schema = get_openapi_schema()
 
-    for experiment in EXPERIMENT_MATRIX:
-        target_test = experiment["test_function"]
-        change_category = experiment["change_category"]
-        change_name = experiment["change_name"]
+    # Run the experiment 5 times
+    for run_number in range(1, 6):
+        print(f"\n{'='*60}")
+        print(f"🌟 MULTI-AGENT EXPERIMENT - BATCH {run_number} OF 5 🌟")
+        print(f"{'='*60}")
         
-        print(f"\n==================================================")
-        print(f"🚀 MAS EXPERIMENT: {change_name} [{change_category.upper()}]")
-        print(f"==================================================")
-        
-        # 1. Reset the test file to V1 state
-        try:
-            shutil.copy("test_main_v1_backup.py", "test_main.py")
-        except FileNotFoundError:
-            print("🚨 ERROR: Backup file not found!")
-            exit(1)
-
-        # 2. Read the fresh broken code
-        with open("test_main.py", "r", encoding="utf-8") as f:
-            broken_code = f.read()
+        for experiment in EXPERIMENT_MATRIX:
+            target_test = experiment["test_function"]
+            change_category = experiment["change_category"]
+            change_name = experiment["change_name"]
             
-        # 3. Create run_id for logging
-        run_id = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_MAS_{change_name}"
+            try:
+                shutil.copy("test_main_v1_backup.py", "test_main.py")
+            except FileNotFoundError:
+                print("🚨 ERROR: Backup file not found!")
+                exit(1)
 
-        # 4. Define Initial State
-        initial_state = {
-            "test_function": target_test,
-            "v2_schema": schema,
-            "current_code": broken_code,
-            "loop_count": 0,
-            "total_tokens": 0,
-            "llm_calls": 0,
-            "success": False
-        }
+            with open("test_main.py", "r", encoding="utf-8") as f:
+                broken_code = f.read()
+                
+            run_id = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_MAS_{change_name}_batch_{run_number}"
 
-        # 5. Execute Graph
-        final_state = multi_agent_app.invoke(initial_state)
-        
-        # 6. Save Final Artifacts (Code and Strategy)
-        save_artifact(run_id, "FINAL", final_state['current_code'], final_state.get('pytest_logs', ''))
-        
-        # Save the Planner's final strategy for qualitative analysis
-        strategy_path = os.path.join(LOGS_DIR, f"{run_id}_FINAL_strategy.md")
-        with open(strategy_path, "w", encoding='utf-8') as f:
-            f.write(final_state.get('planner_strategy', 'No strategy recorded.'))
+            initial_state = {
+                "test_function": target_test,
+                "v2_schema": schema,
+                "current_code": broken_code,
+                "loop_count": 0,
+                "total_tokens": 0,
+                "llm_calls": 0,
+                "success": False
+            }
 
-        # 7. Log to CSV
-        # Note: We tag the architecture as 'multi_agent' to distinguish from 'single_agent'
-        final_error = final_state.get('pytest_logs', '')[-200:].replace("\n", " ") if not final_state['success'] else ""
-        
-        log_result_csv(
-            run_id=run_id,
-            architecture="multi_agent",
-            category=change_category,
-            name=change_name,
-            iterations=final_state['llm_calls'], # We log LLM Calls to match Baseline effort
-            success=final_state['success'],
-            tokens=final_state['total_tokens'],
-            reason=final_error
-        )
-        
-        print(f"✅ Logged {target_test} to CSV.")
+            final_state = multi_agent_app.invoke(initial_state)
+            
+            save_artifact(run_id, "FINAL", final_state['current_code'], final_state.get('pytest_logs', ''))
+            strategy_path = os.path.join(LOGS_DIR, f"{run_id}_FINAL_strategy.md")
+            with open(strategy_path, "w", encoding='utf-8') as f:
+                f.write(final_state.get('planner_strategy', 'No strategy recorded.'))
+
+            final_error = final_state.get('pytest_logs', '')[-200:].replace("\n", " ") if not final_state['success'] else ""
+            
+            log_result_csv(
+                run_id=run_id,
+                architecture="multi_agent",
+                category=change_category,
+                name=change_name,
+                iterations=final_state['llm_calls'],
+                success=final_state['success'],
+                tokens=final_state['total_tokens'],
+                reason=final_error
+            )

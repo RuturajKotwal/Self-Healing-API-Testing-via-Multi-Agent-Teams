@@ -1,0 +1,10 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\admin\OneDrive\Desktop\git\ai-agent-thesis\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\admin\OneDrive\Desktop\git\ai-agent-thesis
+plugins: anyio-4.13.0, langsmith-0.7.30
+collecting ... collected 1 item
+
+test_main.py::test_create_user PASSED                                    [100%]
+
+============================== 1 passed in 0.36s ==============================

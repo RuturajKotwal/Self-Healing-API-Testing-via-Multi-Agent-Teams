@@ -17,24 +17,22 @@ def test_create_user():
         "first_name": "Test",
         "last_name": "Agent",
         "contact_email": "agent@test.com",
-        "role": "customer"  # or "admin", depending on the test case
+        "role": "user"
     }
-    headers = {"x-api-version": "0.1.0"}
-    response = client.post("/api/v2/users", json=payload, headers=headers)
+    response = client.post("/users", json=payload)
     
     assert response.status_code == 201
     data = response.json()
     assert data["first_name"] == "Test"
     assert data["last_name"] == "Agent"
     assert data["contact_email"] == "agent@test.com"
-    assert "user_id" in data
+    assert "id" in data
 
 def test_get_users():
     # Setup: Seed the database with one user
-    headers = {"x-api-version": "0.1.0"}
-    client.post("/api/v2/users", json={"first_name": "Alice", "last_name": "Smith", "contact_email": "alice@test.com", "role": "customer"}, headers=headers)
+    client.post("/users", json={"first_name": "Alice", "last_name": "Smith", "contact_email": "alice@test.com", "role": "user"})
     
-    response = client.get("/api/v2/users", headers=headers)
+    response = client.get("/users")
     assert response.status_code == 200
     
     data = response.json()
@@ -44,20 +42,28 @@ def test_get_users():
 
 def test_get_user_by_id():
     # Setup: Create a user and grab their generated ID
-    headers = {"x-api-version": "0.1.0"}
-    create_resp = client.post("/api/v2/users", json={"first_name": "Bob", "last_name": "Johnson", "contact_email": "bob@test.com", "role": "customer"}, headers=headers)
-    user_id = create_resp.json()["user_id"]
+    create_resp = client.post("/users", json={"first_name": "Bob", "last_name": "Brown", "contact_email": "bob@test.com", "role": "user"})
+    user_id = create_resp.json()["id"]
 
     # Test the fetch
-    response = client.get(f"/api/v2/users/{user_id}", headers=headers)
+    response = client.get(f"/users/{user_id}")
     assert response.status_code == 200
     
     data = response.json()
     assert data["first_name"] == "Bob"
-    assert data["user_id"] == user_id
+    assert data["id"] == user_id
 
 def test_get_user_not_found():
+    # Use a valid UUID for the user_id
+    user_id = "123e4567-e89b-12d3-a456-426614174000"
+    
+    # Add the required header
     headers = {"x-api-version": "0.1.0"}
-    response = client.get("/api/v2/users/999", headers=headers)
+    
+    response = client.get(f"/users/{user_id}", headers=headers)
+    
+    # Expect a 404 Not Found status code
     assert response.status_code == 404
+    
+    # Check for the custom error message
     assert response.json() == {"detail": "User not found"}
