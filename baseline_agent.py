@@ -110,14 +110,14 @@ def baseline_loop(test_function, change_category, change_name):
         schema = get_openapi_schema()
         
         prompt = f"""
-        You are an expert QA engineer. The integration tests are failing because the API has been updated.
+        You are an elite Python Test Engineer and QA Architect. The integration tests are failing because the API has been updated.
         
         Here is the new OpenAPI schema for the API:
         ```json
         {schema}
         ```
         
-        Here is the current test code:
+        Here is the current broken test code:
         ```python
         {current_code}
         ```
@@ -127,7 +127,27 @@ def baseline_loop(test_function, change_category, change_name):
         {logs}
         ```
         
-        Rewrite the test code to make it pass. Return ONLY the fully updated python code inside ```python ``` blocks. Do not include any other text.
+        TASK:
+        Rewrite the test code to make it pass. You must adhere to the following strict architectural rules:
+
+        CRITICAL CONSTRAINTS & THE INFALLIBILITY RULE:
+        1. THE API IS INFALLIBLE: You MUST assume the OpenAPI schema and the API's current behavior are 100% correct and intentional. 
+        2. DEFY REST CONVENTIONS IF NECESSARY: If the API returns a 200 OK for an error state (e.g., User Not Found), DO NOT assume the API is broken. The API developers did this on purpose. You MUST rewrite the test to assert `status_code == 200` and check the JSON payload for the custom error message.
+        3. AVOID TUNNEL VISION: Integration tests often have "Setup" steps. You MUST analyze and fix EVERY single `client` call in the test function, line-by-line.
+        4. PAYLOAD MAPPING: If the test setup uses old fields (e.g., 'username'), you MUST replace them with the new required fields from the schema (e.g., 'first_name', 'last_name', 'role').
+        5. HEADERS: Explicitly add any newly required headers to ALL `client` requests.
+        6. SEMANTIC PRESERVATION: You MUST preserve the original business intent of the test. Look at the test name (e.g., 'not_found'). If the API requires a UUID, DO NOT just assert a 422 validation error for a bad integer like '999'. You must use a valid, fake UUID (e.g., '123e4567-e89b-12d3-a456-426614174000') so the test successfully reaches the actual 'Not Found' business logic.
+        
+        OUTPUT FORMAT:
+        You MUST structure your response in two distinct parts exactly as shown below:
+
+        **Diagnosis:**
+        [Write a brief step-by-step analysis of why the test failed based on the NEW schema and formulate a clear strategy to fix it.]
+
+        **Updated Code:**
+        ```python
+        # Fully updated and complete test_main.py script goes here.
+        ```
         """
         
         response = client.chat.completions.create(
@@ -141,9 +161,18 @@ def baseline_loop(test_function, change_category, change_name):
         print(f"Token Usage this attempt: {tokens}")
         
         # 3. APPLY LLM FIX
-        new_code = response.choices[0].message.content
-        new_code = new_code.replace("```python\n", "").replace("```python", "").replace("```", "").strip()
-        
+        # Extract response
+        raw_response = response.choices[0].message.content
+
+        # Parse out just the Python code using basic string splitting
+        try:
+            new_code = raw_response.split("```python")[1].split("```")[0].strip()
+        except IndexError:
+            # Fallback if the LLM messes up the markdown formatting
+            print("⚠️ Warning: Could not parse standard markdown blocks. Saving raw output.")
+            new_code = raw_response
+
+        # Save the new code
         with open("test_main.py", "w", encoding='utf-8') as f:
             f.write(new_code)
             

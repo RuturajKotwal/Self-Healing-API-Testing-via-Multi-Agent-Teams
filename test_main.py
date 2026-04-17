@@ -19,11 +19,7 @@ def test_create_user():
         "contact_email": "agent@test.com",
         "role": "customer"  # or "admin", depending on the test case
     }
-    response = client.post(
-        "/api/v2/users",
-        json=payload,
-        headers={"x-api-version": "0.1.0"}
-    )
+    response = client.post("/api/v2/users", json=payload, headers={"x-api-version": "0.1.0"})
     
     assert response.status_code == 201
     data = response.json()
@@ -47,7 +43,7 @@ def test_get_users():
 
 def test_get_user_by_id():
     # Setup: Create a user and grab their generated ID
-    create_resp = client.post("/api/v2/users", json={"first_name": "Bob", "last_name": "Johnson", "contact_email": "bob@test.com", "role": "customer"}, headers={"x-api-version": "0.1.0"})
+    create_resp = client.post("/api/v2/users", json={"first_name": "Bob", "last_name": "Builder", "contact_email": "bob@test.com", "role": "customer"}, headers={"x-api-version": "0.1.0"})
     user_id = create_resp.json()["user_id"]
 
     # Test the fetch
@@ -60,5 +56,5 @@ def test_get_user_by_id():
 
 def test_get_user_not_found():
     response = client.get("/api/v2/users/123e4567-e89b-12d3-a456-426614174000", headers={"x-api-version": "0.1.0"})
-    assert response.status_code == 200
+    assert response.status_code == 404
     assert response.json() == {"detail": "User not found"}

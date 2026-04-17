@@ -1,31 +1,31 @@
 run_id,timestamp,architecture,change_category,change_name,llm_calls,success,total_tokens,final_failure_reason
-20260417_093749_pagination_and_envelope,2026-04-17T09:38:16.683953,single_agent,medium,pagination_and_envelope,2,True,5747,
-20260417_093816_error_paradigm_shift,2026-04-17T09:38:51.701706,single_agent,hard,error_paradigm_shift,2,True,5651,
-20260417_093851_semantic_split_and_enum,2026-04-17T09:39:14.411406,single_agent,hard,semantic_split_and_enum,1,True,2618,
-20260417_093914_pagination_and_envelope,2026-04-17T09:39:48.187825,single_agent,medium,pagination_and_envelope,2,True,5747,
-20260417_093948_error_paradigm_shift,2026-04-17T09:40:33.236610,single_agent,hard,error_paradigm_shift,3,True,8994,
-20260417_094033_semantic_split_and_enum,2026-04-17T09:40:47.326195,single_agent,hard,semantic_split_and_enum,1,True,2618,
-20260417_094047_pagination_and_envelope,2026-04-17T09:41:13.776315,single_agent,medium,pagination_and_envelope,2,True,5747,
-20260417_094113_error_paradigm_shift,2026-04-17T09:41:50.185777,single_agent,hard,error_paradigm_shift,3,False,8994,mmary info =========================== FAILED test_main.py::test_get_user_not_found - AssertionError: assert {'detai... ============================== 1 failed in 0.55s ============================== 
-20260417_094150_semantic_split_and_enum,2026-04-17T09:42:01.680027,single_agent,hard,semantic_split_and_enum,1,True,2618,
-20260417_094201_pagination_and_envelope,2026-04-17T09:42:24.554833,single_agent,medium,pagination_and_envelope,2,True,5755,
-20260417_094224_error_paradigm_shift,2026-04-17T09:43:05.504335,single_agent,hard,error_paradigm_shift,3,False,8994,mmary info =========================== FAILED test_main.py::test_get_user_not_found - AssertionError: assert {'detai... ============================== 1 failed in 0.52s ============================== 
-20260417_094305_semantic_split_and_enum,2026-04-17T09:43:16.683377,single_agent,hard,semantic_split_and_enum,1,True,2614,
-20260417_094316_pagination_and_envelope,2026-04-17T09:43:40.250954,single_agent,medium,pagination_and_envelope,2,True,5747,
-20260417_094340_error_paradigm_shift,2026-04-17T09:43:54.213562,single_agent,hard,error_paradigm_shift,1,True,2621,
-20260417_094354_semantic_split_and_enum,2026-04-17T09:44:11.711116,single_agent,hard,semantic_split_and_enum,1,True,2618,
-20260417_095114_MAS_pagination_and_envelope_batch_1,2026-04-17T09:52:11.411560,multi_agent,medium,pagination_and_envelope,4,True,11256,
-20260417_095211_MAS_error_paradigm_shift_batch_1,2026-04-17T09:53:08.049695,multi_agent,hard,error_paradigm_shift,6,False,14929,== short test summary info =========================== FAILED test_main.py::test_get_user_not_found - assert 404 == 200 ============================== 1 failed in 0.47s ============================== 
-20260417_095308_MAS_semantic_split_and_enum_batch_1,2026-04-17T09:53:31.421700,multi_agent,hard,semantic_split_and_enum,2,True,4549,
-20260417_095331_MAS_pagination_and_envelope_batch_2,2026-04-17T09:54:34.124362,multi_agent,medium,pagination_and_envelope,4,True,11081,
-20260417_095434_MAS_error_paradigm_shift_batch_2,2026-04-17T09:55:34.750149,multi_agent,hard,error_paradigm_shift,6,False,14827,== short test summary info =========================== FAILED test_main.py::test_get_user_not_found - assert 404 == 200 ============================== 1 failed in 0.50s ============================== 
-20260417_095534_MAS_semantic_split_and_enum_batch_2,2026-04-17T09:56:05.285693,multi_agent,hard,semantic_split_and_enum,2,True,4569,
-20260417_095605_MAS_pagination_and_envelope_batch_3,2026-04-17T09:57:19.986135,multi_agent,medium,pagination_and_envelope,6,True,16771,
-20260417_095720_MAS_error_paradigm_shift_batch_3,2026-04-17T09:58:20.706354,multi_agent,hard,error_paradigm_shift,6,False,14705,== short test summary info =========================== FAILED test_main.py::test_get_user_not_found - assert 404 == 200 ============================== 1 failed in 0.53s ============================== 
-20260417_095820_MAS_semantic_split_and_enum_batch_3,2026-04-17T09:58:46.893147,multi_agent,hard,semantic_split_and_enum,2,True,4667,
-20260417_095846_MAS_pagination_and_envelope_batch_4,2026-04-17T10:00:09.124737,multi_agent,medium,pagination_and_envelope,6,True,17014,
-20260417_100009_MAS_error_paradigm_shift_batch_4,2026-04-17T10:01:15.753439,multi_agent,hard,error_paradigm_shift,6,False,15103,== short test summary info =========================== FAILED test_main.py::test_get_user_not_found - assert 404 == 200 ============================== 1 failed in 0.49s ============================== 
-20260417_100115_MAS_semantic_split_and_enum_batch_4,2026-04-17T10:01:41.479507,multi_agent,hard,semantic_split_and_enum,2,True,4864,
-20260417_100141_MAS_pagination_and_envelope_batch_5,2026-04-17T10:03:01.677957,multi_agent,medium,pagination_and_envelope,6,False,16496, short test summary info =========================== FAILED test_main.py::test_get_users - AssertionError: assert False ============================== 1 failed in 0.50s ============================== 
-20260417_100301_MAS_error_paradigm_shift_batch_5,2026-04-17T10:04:24.977609,multi_agent,hard,error_paradigm_shift,6,False,14762,== short test summary info =========================== FAILED test_main.py::test_get_user_not_found - assert 404 == 200 ============================== 1 failed in 0.66s ============================== 
-20260417_100424_MAS_semantic_split_and_enum_batch_5,2026-04-17T10:04:48.397766,multi_agent,hard,semantic_split_and_enum,2,True,4973,
+20260417_110036_pagination_and_envelope,2026-04-17T11:01:15.764978,single_agent,medium,pagination_and_envelope,2,True,7324,
+20260417_110115_error_paradigm_shift,2026-04-17T11:01:55.814558,single_agent,hard,error_paradigm_shift,2,True,7342,
+20260417_110155_semantic_split_and_enum,2026-04-17T11:02:13.787583,single_agent,hard,semantic_split_and_enum,1,True,3317,
+20260417_110213_pagination_and_envelope,2026-04-17T11:02:56.284511,single_agent,medium,pagination_and_envelope,2,True,7397,
+20260417_110256_error_paradigm_shift,2026-04-17T11:03:35.890667,single_agent,hard,error_paradigm_shift,2,True,7228,
+20260417_110335_semantic_split_and_enum,2026-04-17T11:03:56.118662,single_agent,hard,semantic_split_and_enum,1,True,3251,
+20260417_110356_pagination_and_envelope,2026-04-17T11:04:30.524782,single_agent,medium,pagination_and_envelope,2,True,7249,
+20260417_110430_error_paradigm_shift,2026-04-17T11:05:05.796331,single_agent,hard,error_paradigm_shift,2,True,7220,
+20260417_110505_semantic_split_and_enum,2026-04-17T11:05:24.588582,single_agent,hard,semantic_split_and_enum,1,True,3325,
+20260417_110524_pagination_and_envelope,2026-04-17T11:06:03.278739,single_agent,medium,pagination_and_envelope,2,True,7268,
+20260417_110603_error_paradigm_shift,2026-04-17T11:06:40.939364,single_agent,hard,error_paradigm_shift,2,True,7270,
+20260417_110640_semantic_split_and_enum,2026-04-17T11:06:57.826736,single_agent,hard,semantic_split_and_enum,1,True,3302,
+20260417_110657_pagination_and_envelope,2026-04-17T11:07:30.228667,single_agent,medium,pagination_and_envelope,2,True,7239,
+20260417_110730_error_paradigm_shift,2026-04-17T11:08:08.725919,single_agent,hard,error_paradigm_shift,2,True,7265,
+20260417_110808_semantic_split_and_enum,2026-04-17T11:08:29.103873,single_agent,hard,semantic_split_and_enum,1,True,3289,
+20260417_123936_MAS_pagination_and_envelope_batch_1,2026-04-17T12:40:32.482510,multi_agent,medium,pagination_and_envelope,4,True,11189,
+20260417_124032_MAS_error_paradigm_shift_batch_1,2026-04-17T12:41:45.116027,multi_agent,hard,error_paradigm_shift,6,False,14740,== short test summary info =========================== FAILED test_main.py::test_get_user_not_found - assert 404 == 200 ============================== 1 failed in 0.45s ============================== 
+20260417_124145_MAS_semantic_split_and_enum_batch_1,2026-04-17T12:42:06.772671,multi_agent,hard,semantic_split_and_enum,2,True,4578,
+20260417_124206_MAS_pagination_and_envelope_batch_2,2026-04-17T12:43:20.391610,multi_agent,medium,pagination_and_envelope,6,True,17035,
+20260417_124320_MAS_error_paradigm_shift_batch_2,2026-04-17T12:44:20.486043,multi_agent,hard,error_paradigm_shift,6,False,14937,mmary info =========================== FAILED test_main.py::test_get_user_not_found - AssertionError: assert {'detai... ============================== 1 failed in 0.69s ============================== 
+20260417_124420_MAS_semantic_split_and_enum_batch_2,2026-04-17T12:44:43.830938,multi_agent,hard,semantic_split_and_enum,2,True,4685,
+20260417_124443_MAS_pagination_and_envelope_batch_3,2026-04-17T12:45:47.076712,multi_agent,medium,pagination_and_envelope,6,True,16737,
+20260417_124547_MAS_error_paradigm_shift_batch_3,2026-04-17T12:46:46.793398,multi_agent,hard,error_paradigm_shift,6,False,15029,mmary info =========================== FAILED test_main.py::test_get_user_not_found - AssertionError: assert {'detai... ============================== 1 failed in 0.45s ============================== 
+20260417_124646_MAS_semantic_split_and_enum_batch_3,2026-04-17T12:47:17.023032,multi_agent,hard,semantic_split_and_enum,2,True,5002,
+20260417_124717_MAS_pagination_and_envelope_batch_4,2026-04-17T12:48:13.996064,multi_agent,medium,pagination_and_envelope,4,True,11207,
+20260417_124813_MAS_error_paradigm_shift_batch_4,2026-04-17T12:49:17.377467,multi_agent,hard,error_paradigm_shift,6,False,15438,mmary info =========================== FAILED test_main.py::test_get_user_not_found - AssertionError: assert {'detai... ============================== 1 failed in 0.49s ============================== 
+20260417_124917_MAS_semantic_split_and_enum_batch_4,2026-04-17T12:49:40.113432,multi_agent,hard,semantic_split_and_enum,2,True,4781,
+20260417_124940_MAS_pagination_and_envelope_batch_5,2026-04-17T12:50:55.734286,multi_agent,medium,pagination_and_envelope,6,True,17188,
+20260417_125055_MAS_error_paradigm_shift_batch_5,2026-04-17T12:51:56.992527,multi_agent,hard,error_paradigm_shift,6,True,15526,
+20260417_125156_MAS_semantic_split_and_enum_batch_5,2026-04-17T12:52:22.190707,multi_agent,hard,semantic_split_and_enum,2,True,5139,
