@@ -128,7 +128,7 @@ def planner_node(state: AgentState):
     """
     
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4.1",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.0 # ZERO temperature for strict analytical determinism
     )
@@ -168,7 +168,7 @@ def coder_node(state: AgentState):
     """
     
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-4.1",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.1
     )
