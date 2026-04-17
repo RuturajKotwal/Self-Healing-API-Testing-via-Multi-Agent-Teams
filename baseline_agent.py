@@ -12,12 +12,12 @@ from openai import OpenAI
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-MAX_ATTEMPTS = 4
+# Enforce a strict limit of 3 API calls and 3 Pytest runs
+MAX_ATTEMPTS = 3 
 RESULTS_FILE = "thesis_results.csv"
 LOGS_DIR = "experiment_logs"
 
 # --- THE EXPERIMENT MATRIX ---
-# Maps specific tests to their highest cognitive complexity hurdle
 EXPERIMENT_MATRIX = [
     {
         "test_function": "test_get_users",
@@ -95,25 +95,18 @@ def baseline_loop(test_function, change_category, change_name):
     total_tokens_used = 0
     run_id = f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{change_name}"
     
+    # Synthetic log to provide context to the LLM on the very first API call
+    logs = "Initial state: The test is assumed broken due to API schema changes. Please actively update the test to align with the new OpenAPI schema."
+    
     for attempt in range(1, MAX_ATTEMPTS + 1):
         print(f"\n--- Attempt {attempt} ---")
+        print(f"🤖 Calling LLM for a fix...")
         
-        # Isolate the execution to only the targeted test function
-        success, logs = run_tests(test_function) 
-        
+        # 1. READ CURRENT BROKEN CODE
         with open("test_main.py", "r", encoding='utf-8') as f:
             current_code = f.read()
             
-        save_artifact(run_id, attempt, current_code, logs)
-        
-        if success:
-            print(f"✅ Isolated test '{test_function}' passed!")
-            llm_calls = attempt - 1
-            log_result_csv(run_id, "single_agent", change_category, change_name, llm_calls, True, total_tokens_used)
-            return
-            
-        print(f"❌ Test failed. Asking LLM for a fix...")
-        
+        # 2. FETCH SCHEMA AND CALL LLM
         schema = get_openapi_schema()
         
         prompt = f"""
@@ -147,16 +140,30 @@ def baseline_loop(test_function, change_category, change_name):
         total_tokens_used += tokens
         print(f"Token Usage this attempt: {tokens}")
         
+        # 3. APPLY LLM FIX
         new_code = response.choices[0].message.content
         new_code = new_code.replace("```python\n", "").replace("```python", "").replace("```", "").strip()
         
         with open("test_main.py", "w", encoding='utf-8') as f:
             f.write(new_code)
             
-    if not success:
-        print(f"🚨 Baseline failed to heal '{test_function}' after {MAX_ATTEMPTS} attempts.")
-        final_error_snippet = logs[-200:].replace("\n", " ") 
-        log_result_csv(run_id, "single_agent", change_category, change_name, MAX_ATTEMPTS, False, total_tokens_used, final_error_snippet)
+        # 4. RUN PYTEST ON THE NEW CODE
+        print(f"🧪 Running Pytest to validate LLM code...")
+        success, logs = run_tests(test_function) 
+        
+        # 5. SAVE ARTIFACTS
+        save_artifact(run_id, attempt, new_code, logs)
+        
+        if success:
+            print(f"✅ Isolated test '{test_function}' passed!")
+            # Attempt maps precisely to the number of API calls made
+            log_result_csv(run_id, "single_agent", change_category, change_name, attempt, True, total_tokens_used)
+            return
+            
+    # If the loop exhausts all attempts without hitting the 'return' above:
+    print(f"🚨 Baseline failed to heal '{test_function}' after {MAX_ATTEMPTS} attempts.")
+    final_error_snippet = logs[-200:].replace("\n", " ") if logs else "Unknown error"
+    log_result_csv(run_id, "single_agent", change_category, change_name, MAX_ATTEMPTS, False, total_tokens_used, final_error_snippet)
 
 if __name__ == "__main__":
     init_logging()

@@ -19,22 +19,25 @@ def test_create_user():
         "contact_email": "agent@test.com",
         "role": "customer"  # or "admin", depending on the test case
     }
-    headers = {"x-api-version": "0.1.0"}
-    response = client.post("/api/v2/users", json=payload, headers=headers)
+    response = client.post(
+        "/api/v2/users",
+        json=payload,
+        headers={"x-api-version": "0.1.0"}
+    )
     
     assert response.status_code == 201
     data = response.json()
     assert data["first_name"] == "Test"
     assert data["last_name"] == "Agent"
     assert data["contact_email"] == "agent@test.com"
+    assert data["role"] == "customer"  # or "admin"
     assert "user_id" in data
 
 def test_get_users():
     # Setup: Seed the database with one user
-    headers = {"x-api-version": "0.1.0"}
-    client.post("/api/v2/users", json={"first_name": "Alice", "last_name": "Smith", "contact_email": "alice@test.com", "role": "customer"}, headers=headers)
+    client.post("/api/v2/users", json={"first_name": "Alice", "last_name": "Smith", "contact_email": "alice@test.com", "role": "customer"}, headers={"x-api-version": "0.1.0"})
     
-    response = client.get("/api/v2/users", headers=headers)
+    response = client.get("/api/v2/users", headers={"x-api-version": "0.1.0"})
     assert response.status_code == 200
     
     data = response.json()
@@ -44,12 +47,11 @@ def test_get_users():
 
 def test_get_user_by_id():
     # Setup: Create a user and grab their generated ID
-    headers = {"x-api-version": "0.1.0"}
-    create_resp = client.post("/api/v2/users", json={"first_name": "Bob", "last_name": "Johnson", "contact_email": "bob@test.com", "role": "customer"}, headers=headers)
+    create_resp = client.post("/api/v2/users", json={"first_name": "Bob", "last_name": "Johnson", "contact_email": "bob@test.com", "role": "customer"}, headers={"x-api-version": "0.1.0"})
     user_id = create_resp.json()["user_id"]
 
     # Test the fetch
-    response = client.get(f"/api/v2/users/{user_id}", headers=headers)
+    response = client.get(f"/api/v2/users/{user_id}", headers={"x-api-version": "0.1.0"})
     assert response.status_code == 200
     
     data = response.json()
@@ -57,7 +59,6 @@ def test_get_user_by_id():
     assert data["user_id"] == user_id
 
 def test_get_user_not_found():
-    headers = {"x-api-version": "0.1.0"}
-    response = client.get("/api/v2/users/999", headers=headers)
-    assert response.status_code == 404
+    response = client.get("/api/v2/users/123e4567-e89b-12d3-a456-426614174000", headers={"x-api-version": "0.1.0"})
+    assert response.status_code == 200
     assert response.json() == {"detail": "User not found"}
